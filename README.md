@@ -16,63 +16,80 @@ To write a yacc program to recognize a valid arithmetic expression that uses ope
 ## PROGRAM
 ## exp3.l
 ```
-// arth.l file
+// exp3.l file
 %{
 #include "y.tab.h"
 %}
 
 %%
 
-"=" { printf("\n Operator is EQUAL"); return '='; } "+" { printf("\n Operator is PLUS"); return PLUS; }
-"-" { printf("\n Operator is MINUS"); return MINUS; }
-"/" { printf("\n Operator is DIVISION"); return DIVISION; }
-"*" { printf("\n Operator is MULTIPLICATION"); return MULTIPLICATION; } [a-zA-Z]*[0-9]* { printf("\n Identifier is %s", yytext); return ID; }
-. { return yytext[0]; }
-\n { return 0; }
+"=" {printf("\n Operator is EQUAL");} 
+"+" {printf("\n Operator is PLUS");}
+"-" {printf("\n Operator is MINUS");} 
+"/" {printf("\n Operator is DIVISION");}
+"*" {printf("\n Operator is MULTIPLICATION");} 
+[a-zA-Z]*[0-9]* {
+printf("\n Identifier is %s",yytext); return ID; }
+. return yytext[0];
+\n return 0;
 
 %%
 
-int yywrap() { return 1;
+int yywrap()
+{
+return 1;
 }
+
 ```
-# arth.y
+# exp3.y
 ```
 
 %{
-#include <stdio.h>
-/* This YACC program is for recognizing the Expression */
+#include<stdio.h>
 %}
 
-%token ID PLUS MINUS MULTIPLICATION DIVISION
+%token A ID
 
 %%
 
-statement: ID '=' E {
-printf("\nValid arithmetic expression");
-$$ = $3;
+statement: A'='E
+
+| E {
+
+printf("\n Valid arithmetic expression");
+
+$$=$1;
+
 }
+
 ;
 
-E: E PLUS ID
-| E MINUS ID
-| E MULTIPLICATION ID
-| E DIVISION ID
+E: E'+'ID
+
+| E'-'ID
+
+| E'*'ID
+
+| E'/'ID
+
 | ID
+
 ;
 
 %%
-extern FILE* yyin; int main() {
-do {
-yyparse();
-} while (!feof(yyin)); return 0;
+
+extern FILE*yyin; main() {
+do { yyparse();
+}while(!feof(yyin)); } yyerror(char*s)
+{
+
 }
 
-void yyerror(char *s) { fprintf(stderr, "Error: %s\n", s);
-}
 
 ```
 ## OUTPUT
-![Screenshot 2025-04-23 164951](https://github.com/user-attachments/assets/9e2d5713-7a1e-4ee7-8722-9423d099216a)
+![Screenshot 2025-05-21 104703](https://github.com/user-attachments/assets/b6dc8aed-3c8d-49aa-bf4c-25970fce45d4)
+
 
 ## RESULT
 A YACC program to recognize a valid arithmetic expression that uses operator +,-,* and / is executed successfully and the output is verified.
