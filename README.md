@@ -19,76 +19,70 @@ To write a yacc program to recognize a valid arithmetic expression that uses ope
 // exp3.l file
 %{
 #include "y.tab.h"
+#include <stdlib.h>
 %}
 
 %%
-
-"=" {printf("\n Operator is EQUAL");} 
-"+" {printf("\n Operator is PLUS");}
-"-" {printf("\n Operator is MINUS");} 
-"/" {printf("\n Operator is DIVISION");}
-"*" {printf("\n Operator is MULTIPLICATION");} 
-[a-zA-Z]*[0-9]* {
-printf("\n Identifier is %s",yytext); return ID; }
-. return yytext[0];
-\n return 0;
-
+[0-9]+      { yylval = atoi(yytext); return NUMBER; }
+[a-zA-Z]    { return ID; }
+[ \t]       ; // ignore whitespace
+[\n]        return '\n';
+.           return yytext[0];
 %%
 
-int yywrap()
-{
-return 1;
+int yywrap() {
+    return 1;
 }
+
+
 
 ```
 # exp3.y
 ```
-
 %{
-#include<stdio.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+int yylex(void);
+void yyerror(const char *s);
 %}
 
-%token A ID
+%token NUMBER ID
+
+%left '+' '-'
+%left '*' '/'
 
 %%
+input:
+    | input expr '\n'   { printf("Valid expression\n"); }
+    ;
 
-statement: A'='E
-
-| E {
-
-printf("\n Valid arithmetic expression");
-
-$$=$1;
-
-}
-
-;
-
-E: E'+'ID
-
-| E'-'ID
-
-| E'*'ID
-
-| E'/'ID
-
-| ID
-
-;
-
+expr:
+      expr '+' expr
+    | expr '-' expr
+    | expr '*' expr
+    | expr '/' expr
+    | '(' expr ')'
+    | NUMBER
+    | ID
+    ;
 %%
 
-extern FILE*yyin; main() {
-do { yyparse();
-}while(!feof(yyin)); } yyerror(char*s)
-{
-
+void yyerror(const char *s) {
+    fprintf(stderr, "Error: %s\n", s);
 }
+
+int main() {
+    printf("Enter an arithmetic expression:\n");
+    yyparse();
+    return 0;
+}
+
 
 
 ```
 ## OUTPUT
-![Screenshot 2025-05-21 104703](https://github.com/user-attachments/assets/b6dc8aed-3c8d-49aa-bf4c-25970fce45d4)
+![Screenshot 2025-05-21 112134](https://github.com/user-attachments/assets/b58e62f7-e7e2-4f27-a4a2-2ea4d78ee43d)
 
 
 ## RESULT
